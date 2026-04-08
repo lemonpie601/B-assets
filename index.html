@@ -1,105 +1,132 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lemonpie B-Side Archive</title>
-    <style>
-        /* 기본 스타일 및 색감 */
-        body { background-color: #f0e5d8; margin: 0; padding: clamp(10px, 3vw, 30px); font-family: 'Nanum Gothic', sans-serif; color: #5d4037; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
-        .container { width: 100%; max-width: 950px; margin: 0 auto; background: #fffdf5; border: 6px solid #8b5e3c; border-radius: 20px; padding-bottom: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { text-align: center; padding: 50px 20px 30px; border-bottom: 2px dashed #d4a373; margin: 0 40px 30px; }
-        
-        /* 탭 버튼 디자인 */
-        .tab-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; padding: 0 20px; }
-        .tab-btn { padding: 10px 20px; border: 2px solid #8b5e3c; background: #fff; border-radius: 25px; cursor: pointer; font-weight: bold; color: #8b5e3c; transition: 0.3s; font-size: 14px; }
-        .tab-btn.active { background: #8b5e3c; color: #fff; box-shadow: 0 4px 0 #5d4037; }
-
-        /* 그리드 디자인 */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 0 30px; }
-        .card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 10px; box-shadow: 5px 5px 0 #faedcd; transition: 0.2s; }
-        .card:hover { transform: translateY(-5px); }
-        .card img { width: 100%; height: 250px; object-fit: cover; border-radius: 8px; pointer-events: none; } /* 이미지 저장 방지 */
-        .card p { text-align: center; font-weight: bold; margin-top: 12px; font-size: 14px; color: #3e2723; }
-
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: repeat(2, 1fr); padding: 0 15px; gap: 12px; }
-            .card img { height: 180px; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lemonpie B-Side Archive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #faf7f2; font-family: 'Noto Sans KR', sans-serif; color: #3a2e28; -webkit-user-select: none; -moz-user-select: none; user-select: none; min-height: 100vh; }
+    .site-header { background: #fff; border-bottom: 2px solid #e8ddd3; padding: 0 24px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .site-logo { font-size: 22px; font-weight: 900; color: #8b5e3c; letter-spacing: -0.5px; }
+    .site-logo span { color: #d4a373; }
+    .tab-bar { background: #fff; border-bottom: 1px solid #ede6df; padding: 0 24px; }
+    .tab-inner { max-width: 1100px; margin: 0 auto; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding: 12px 0; }
+    .tab-inner::-webkit-scrollbar { display: none; }
+    .tab-btn { padding: 8px 20px; border: 2px solid #ddd3c8; background: transparent; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 13px; color: #8b7355; white-space: nowrap; transition: all 0.2s; font-family: inherit; }
+    .tab-btn:hover { border-color: #8b5e3c; color: #8b5e3c; background: #fdf5ec; }
+    .tab-btn.active { background: #8b5e3c; color: #fff; border-color: #8b5e3c; }
+    .main-wrap { max-width: 1100px; margin: 36px auto; padding: 0 24px; }
+    .post-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; }
+    .card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.07); transition: transform 0.25s, box-shadow 0.25s; cursor: pointer; border: 1px solid #ede6df; }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 12px 32px rgba(0,0,0,0.13); }
+    .card-thumb { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; pointer-events: none; }
+    .card-body { padding: 16px 18px 18px; }
+    .card-tag { display: inline-block; background: #fdf5ec; color: #8b5e3c; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin-bottom: 8px; border: 1px solid #e8d9c8; }
+    .card-title { font-size: 15px; font-weight: 700; color: #3a2e28; line-height: 1.5; }
+    .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 9999; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(4px); }
+    .lightbox.open { display: flex; }
+    .lightbox-inner { position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .lightbox-img { max-width: 100%; max-height: 80vh; border-radius: 12px; object-fit: contain; pointer-events: none; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .lightbox-title { color: #fff; font-size: 16px; font-weight: 700; text-align: center; }
+    .lightbox-close { position: fixed; top: 20px; right: 24px; background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 28px; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; font-family: inherit; }
+    .lightbox-close:hover { background: rgba(255,255,255,0.3); }
+    .empty-state { text-align: center; padding: 80px 20px; color: #b0998a; font-size: 15px; }
+    @media (max-width: 640px) { .post-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; } .main-wrap { margin: 20px auto; padding: 0 14px; } .card-body { padding: 12px 14px 14px; } .card-title { font-size: 13px; } }
+    .blocked-overlay { display: none; position: fixed; inset: 0; background: #faf7f2; z-index: 99999; align-items: center; justify-content: center; flex-direction: column; gap: 16px; font-family: 'Noto Sans KR', sans-serif; }
+    .blocked-overlay.show { display: flex; }
+    .blocked-overlay .lock-icon { font-size: 64px; }
+    .blocked-overlay .lock-msg { font-size: 20px; font-weight: 700; color: #5d4037; }
+    .blocked-overlay .lock-sub { font-size: 14px; color: #a08070; }
+  </style>
 </head>
 <body oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
-
-<div class="container">
-    <div class="header">
-        <h1 style="margin:0; font-size: clamp(24px, 5vw, 36px);">🍋 B-Side Archive</h1>
-        <p style="margin-top:10px; font-weight:bold; opacity:0.8;">@lemonpie 에셋 보관함</p>
+  <div class="blocked-overlay" id="blockedOverlay">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-msg">접근이 차단되었습니다</div>
+    <div class="lock-sub">개발자 도구 사용이 감지되었습니다</div>
+  </div>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-logo">🍋 Lemon<span>pie</span></div>
     </div>
-
-    <div class="tab-container" id="tabs">
-        <button class="tab-btn active">로딩 중...</button>
+  </header>
+  <nav class="tab-bar">
+    <div class="tab-inner" id="tabs">
+      <button class="tab-btn active">로딩 중...</button>
     </div>
-
-    <div id="gallery" class="grid"></div>
-</div>
-
-<script>
-    // 1. 본인의 Raw JSON 주소로 수정 필수!
-    const JSON_URL = 'https://raw.githubusercontent.com/lemonpie601/B-assets/main/assets.json';
-    
-    let items = [];
-
-    async function init() {
-        try {
-            const res = await fetch(JSON_URL);
-            items = await res.json();
-            renderTabs();
-            showCategory('전체');
-        } catch (e) {
-            console.error("데이터 로딩 실패");
-        }
+  </nav>
+  <main class="main-wrap">
+    <div class="post-grid" id="gallery"></div>
+  </main>
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-inner">
+      <img class="lightbox-img" id="lightboxImg" src="" alt="">
+      <div class="lightbox-title" id="lightboxTitle"></div>
+    </div>
+    <button class="lightbox-close" id="lightboxClose">&#x2715;</button>
+  </div>
+  <script>
+    (function() {
+      function showBlocked() { document.getElementById('blockedOverlay').classList.add('show'); }
+      document.addEventListener('keydown', function(e) {
+        if (e.keyCode === 123) { e.preventDefault(); e.stopPropagation(); return false; }
+        if (e.ctrlKey && e.shiftKey && [73,74,67,75].indexOf(e.keyCode) !== -1) { e.preventDefault(); e.stopPropagation(); return false; }
+        if (e.ctrlKey && [85,83,80].indexOf(e.keyCode) !== -1) { e.preventDefault(); e.stopPropagation(); return false; }
+      }, true);
+      var THRESHOLD = 160;
+      function detectBySize() {
+        if ((window.outerWidth - window.innerWidth > THRESHOLD) || (window.outerHeight - window.innerHeight > THRESHOLD)) { showBlocked(); }
+      }
+      setInterval(detectBySize, 500);
+      var devImg = new Image();
+      Object.defineProperty(devImg, 'id', { get: function() { showBlocked(); } });
+      setInterval(function() { console.log(devImg); console.clear(); }, 1000);
+      setInterval(function() { debugger; }, 100);
+    })();
+    var lightbox = document.getElementById('lightbox');
+    var lightboxImg = document.getElementById('lightboxImg');
+    var lightboxTitle = document.getElementById('lightboxTitle');
+    var lightboxClose = document.getElementById('lightboxClose');
+    function openLightbox(src, title) { lightboxImg.src = src; lightboxTitle.textContent = title; lightbox.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeLightbox() { lightbox.classList.remove('open'); document.body.style.overflow = ''; setTimeout(function() { lightboxImg.src = ''; }, 300); }
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', function(e) { if (e.target === lightbox) closeLightbox(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+    var JSON_URL = 'https://raw.githubusercontent.com/lemonpie601/B-assets/main/assets.json';
+    var items = [];
+    function init() {
+      fetch(JSON_URL).then(function(r) { return r.json(); }).then(function(data) { items = data; renderTabs(); showCategory('전체'); }).catch(function() { document.getElementById('gallery').innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다</div>'; });
     }
-
     function renderTabs() {
-        const container = document.getElementById('tabs');
-        const categories = ['전체', ...new Set(items.map(i => i.tab))];
-        
-        container.innerHTML = '';
-        categories.forEach(cat => {
-            const btn = document.createElement('button');
-            btn.className = 'tab-btn' + (cat === '전체' ? ' active' : '');
-            btn.innerText = cat;
-            btn.onclick = (e) => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                showCategory(cat);
-            };
-            container.appendChild(btn);
-        });
+      var container = document.getElementById('tabs');
+      var cats = ['전체'];
+      items.forEach(function(i) { if (cats.indexOf(i.tab) === -1) cats.push(i.tab); });
+      container.innerHTML = '';
+      cats.forEach(function(cat) {
+        var btn = document.createElement('button');
+        btn.className = 'tab-btn' + (cat === '전체' ? ' active' : '');
+        btn.textContent = cat;
+        btn.addEventListener('click', function() { document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); }); btn.classList.add('active'); showCategory(cat); });
+        container.appendChild(btn);
+      });
     }
-
     function showCategory(category) {
-        const grid = document.getElementById('gallery');
-        grid.innerHTML = '';
-        
-        const filtered = category === '전체' ? items : items.filter(i => i.tab === category);
-        
-        filtered.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `<img src="${item.img}" loading="lazy"><p>${item.name}</p>`;
-            grid.appendChild(card);
-        });
+      var grid = document.getElementById('gallery');
+      grid.innerHTML = '';
+      var filtered = category === '전체' ? items : items.filter(function(i) { return i.tab === category; });
+      if (filtered.length === 0) { grid.innerHTML = '<div class="empty-state">아직 등록된 에셋이 없어요 🍋</div>'; return; }
+      filtered.forEach(function(item) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = '<img class="card-thumb" src="' + item.img + '" loading="lazy" alt="' + item.name + '"><div class="card-body"><span class="card-tag">' + item.tab + '</span><div class="card-title">' + item.name + '</div></div>';
+        card.addEventListener('click', function() { openLightbox(item.img, item.name); });
+        grid.appendChild(card);
+      });
     }
-
-    // F12 및 주요 단축키 차단
-    window.addEventListener('keydown', (e) => {
-        if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
-            e.preventDefault();
-        }
-    });
-
     init();
-</script>
+  </script>
 </body>
 </html>

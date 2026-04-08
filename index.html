@@ -3,46 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lemonpie B-Side Gallery</title>
+    <title>Lemonpie Archive</title>
     <style>
-        /* 기존 애니메이션 및 기본 스타일 */
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        body { background-color: #f0e5d8; margin: 0; padding: clamp(10px, 3vw, 30px); font-family: 'Nanum Gothic', sans-serif; color: #5d4037; }
+        body { background-color: #f0e5d8; margin: 0; padding: 20px; font-family: 'Nanum Gothic', sans-serif; color: #5d4037; }
+        .container { width: 100%; max-width: 950px; margin: 0 auto; background: #fffdf5; border: 6px solid #8b5e3c; border-radius: 20px; padding-bottom: 40px; box-sizing: border-box; }
+        .header { text-align: center; padding: 40px 20px; }
         
-        .container {
-            width: 100%; max-width: 950px; margin: 0 auto; background: #fffdf5; 
-            border: 6px solid #8b5e3c; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            padding-bottom: 40px; position: relative;
-        }
+        /* 탭 디자인 */
+        .tab-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; padding: 0 20px; }
+        .tab-btn { padding: 10px 20px; border: 2px solid #8b5e3c; background: #fff; border-radius: 25px; cursor: pointer; font-weight: bold; color: #8b5e3c; transition: 0.3s; }
+        .tab-btn.active { background: #8b5e3c; color: #fff; box-shadow: 0 4px 0 #5d4037; }
 
-        .header { text-align: center; padding: 50px 20px 20px; }
-        .header h1 { font-size: 32px; margin-bottom: 10px; }
+        /* 그리드 디자인 */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 0 30px; }
+        .card { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 10px; box-shadow: 5px 5px 0 #faedcd; }
+        .card img { width: 100%; height: 250px; object-fit: cover; border-radius: 8px; background: #f9f9f9; }
+        .card p { text-align: center; font-weight: bold; margin-top: 10px; font-size: 14px; }
 
-        /* 탭 스타일 */
-        .tab-container {
-            display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; padding: 0 20px;
-        }
-        .tab-btn {
-            padding: 8px 18px; border: 2px solid #8b5e3c; background: #fff;
-            border-radius: 20px; cursor: pointer; font-weight: bold; color: #8b5e3c;
-            transition: 0.2s;
-        }
-        .tab-btn.active { background: #8b5e3c; color: #fff; }
-
-        /* 그리드 레이아웃 */
-        .grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px; padding: 0 30px;
-        }
-        .card {
-            background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 8px;
-            box-shadow: 4px 4px 0 #faedcd; transition: 0.3s;
-        }
-        .card:hover { transform: scale(1.03); }
-        .card img { width: 100%; height: 220px; object-fit: cover; border-radius: 8px; }
-        .card p { text-align: center; font-size: 13px; margin: 8px 0; font-weight: bold; }
-
-        /* 반응형 */
         @media (max-width: 600px) {
             .grid { grid-template-columns: repeat(2, 1fr); padding: 0 15px; gap: 10px; }
             .card img { height: 180px; }
@@ -54,71 +31,78 @@
 <div class="container">
     <div class="header">
         <h1>🍋 B-Side Archive</h1>
-        <p>카테고리를 선택해서 에셋을 구경해보세요.</p>
+        <p>에셋 보관함입니다.</p>
     </div>
 
-    <div class="tab-container" id="tab-menu"></div>
+    <div class="tab-container" id="tabs">
+        <button class="tab-btn active" onclick="filterGallery('전체')">전체</button>
+    </div>
 
-    <div class="grid" id="image-grid"></div>
+    <div class="grid" id="gallery">
+        <p id="loading">데이터를 불러오는 중...</p>
+    </div>
 </div>
 
 <script>
-    // 1. 본인의 깃허브 주소로 변경하세요
+    // 1. 여기에 본인의 raw 주소를 넣으세요!
     const JSON_URL = 'https://raw.githubusercontent.com/lemonpie601/B-assets/main/assets.json';
-    const IMG_BASE = 'https://raw.githubusercontent.com/lemonpie601/B-assets/main/';
+    
+    let items = [];
 
-    let allItems = [];
-
-    async function init() {
+    async function loadData() {
         try {
             const res = await fetch(JSON_URL);
-            const data = await res.json();
-            allItems = data.items;
-
-            renderTabs(data.categories);
-            renderGallery('all'); // 초기값: 전체보기
-        } catch (err) {
-            console.error("데이터 로드 실패", err);
+            items = await res.json();
+            
+            createTabs();
+            filterGallery('전체');
+        } catch (e) {
+            document.getElementById('loading').innerText = "데이터를 불러오지 못했습니다. 주소를 확인해주세요!";
         }
     }
 
-    // 탭 그리기
-    function renderTabs(categories) {
-        const menu = document.getElementById('tab-menu');
-        categories.forEach((cat, idx) => {
+    // JSON 데이터를 보고 탭을 자동으로 만드는 함수
+    function createTabs() {
+        const tabsContainer = document.getElementById('tabs');
+        // 중복 제거해서 탭 이름들만 추출
+        const categories = ['전체', ...new Set(items.map(item => item.tab))];
+        
+        tabsContainer.innerHTML = ''; // 초기화
+        categories.forEach(cat => {
             const btn = document.createElement('button');
-            btn.className = `tab-btn ${idx === 0 ? 'active' : ''}`;
-            btn.innerText = cat.name;
-            btn.onclick = () => {
+            btn.className = 'tab-btn' + (cat === '전체' ? ' active' : '');
+            btn.innerText = cat;
+            btn.onclick = (e) => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                renderGallery(cat.id);
+                e.target.classList.add('active');
+                filterGallery(cat);
             };
-            menu.appendChild(btn);
+            tabsContainer.appendChild(btn);
         });
     }
 
-    // 갤러리 그리기
-    function renderGallery(categoryId) {
-        const grid = document.getElementById('image-grid');
-        grid.innerHTML = ''; // 초기화
+    // 선택한 탭의 이미지만 보여주는 함수
+    function filterGallery(category) {
+        const gallery = document.getElementById('gallery');
+        gallery.innerHTML = '';
 
-        const filtered = categoryId === 'all' 
-            ? allItems 
-            : allItems.filter(item => item.category === categoryId);
+        const filtered = category === '전체' 
+            ? items 
+            : items.filter(item => item.tab === category);
 
         filtered.forEach(item => {
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <img src="${IMG_BASE}${item.url}" loading="lazy">
-                <p>${item.title}</p>
+                <img src="${item.img}" alt="${item.name}" loading="lazy">
+                <p>${item.name}</p>
             `;
-            grid.appendChild(card);
+            gallery.appendChild(card);
         });
     }
 
-    init();
+    loadData();
 </script>
+
 </body>
 </html>

@@ -83,23 +83,27 @@ body {
    ============================================ */
 
 .navigation {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
 }
 
 .nav-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
+  justify-content: center;
+  text-align: center;
+  padding: 16px 12px;
   background: var(--color-white);
   border: 2px solid var(--color-border);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 13px;
+  min-height: 100px;
+  position: relative;
 }
 
 .nav-item:hover {
@@ -116,31 +120,36 @@ body {
 
 .nav-item-left {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  width: 100%;
 }
 
 .nav-emoji {
-  font-size: 18px;
+  font-size: 32px;
 }
 
 .nav-name {
   flex: 1;
-  text-align: left;
+  text-align: center;
+  font-size: 12px;
 }
 
 .nav-count {
-  font-size: 13px;
+  font-size: 12px;
   opacity: 0.7;
   font-weight: 500;
 }
 
 .nav-toggle {
   width: 20px;
-  text-align: right;
+  text-align: center;
   font-size: 12px;
   transition: transform 0.2s;
-  margin-left: 8px;
+  position: absolute;
+  top: 4px;
+  right: 4px;
 }
 
 .nav-toggle.open {
@@ -150,10 +159,10 @@ body {
 /* 서브항목 */
 .nav-subitems {
   display: none;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: -4px;
-  padding-left: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  grid-column: 1 / -1;
+  padding: 12px 0;
 }
 
 .nav-subitems.open {
@@ -162,16 +171,19 @@ body {
 
 .nav-subitem {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
+  justify-content: center;
+  text-align: center;
+  padding: 12px 10px;
   background: rgba(139, 94, 60, 0.05);
   border: 1px solid rgba(139, 94, 60, 0.15);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   transition: all 0.2s;
+  min-height: 80px;
 }
 
 .nav-subitem:hover {
@@ -408,14 +420,17 @@ body {
     padding: 16px;
   }
 
+  .navigation {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .gallery-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 12px;
   }
 
   .nav-item {
-    padding: 12px 14px;
-    font-size: 14px;
+    min-height: 90px;
   }
 
   .card-title {
@@ -437,18 +452,27 @@ body {
     gap: 16px;
   }
 
+  .navigation {
+    grid-template-columns: 1fr;
+  }
+
   .gallery-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
 
   .nav-item {
-    padding: 10px 12px;
-    font-size: 13px;
+    min-height: 80px;
+    padding: 12px 8px;
+    font-size: 12px;
+  }
+
+  .nav-emoji {
+    font-size: 28px;
   }
 
   .nav-count {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .card {

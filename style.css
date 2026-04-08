@@ -421,7 +421,7 @@ body {
   }
 
   .navigation {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .gallery-grid {
@@ -430,7 +430,21 @@ body {
   }
 
   .nav-item {
-    min-height: 90px;
+    min-height: 80px;
+    padding: 10px 6px;
+    font-size: 11px;
+  }
+
+  .nav-emoji {
+    font-size: 24px;
+  }
+
+  .nav-name {
+    font-size: 11px;
+  }
+
+  .nav-count {
+    font-size: 10px;
   }
 
   .card-title {
@@ -453,7 +467,7 @@ body {
   }
 
   .navigation {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .gallery-grid {
@@ -462,17 +476,21 @@ body {
   }
 
   .nav-item {
-    min-height: 80px;
-    padding: 12px 8px;
-    font-size: 12px;
+    min-height: 70px;
+    padding: 8px 4px;
+    font-size: 10px;
   }
 
   .nav-emoji {
-    font-size: 28px;
+    font-size: 22px;
+  }
+
+  .nav-name {
+    font-size: 10px;
   }
 
   .nav-count {
-    font-size: 11px;
+    font-size: 9px;
   }
 
   .card {
@@ -481,5 +499,134 @@ body {
 
   .card-body {
     padding: 10px;
+  }
+}
+
+/* ============================================
+   폴더 카드 그리드 (홈 화면)
+   ============================================ */
+
+.navigation {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.folder-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--color-white);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 120px;
+  text-align: center;
+}
+
+.folder-card:hover {
+  border-color: var(--color-primary);
+  background: var(--color-tag-bg);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.folder-card-emoji {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.folder-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* 서브폴더 리스트 (리스트 뷰로 돌아감) */
+.navigation.sublist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.back-btn {
+  background: rgba(139, 94, 60, 0.1) !important;
+  border-color: rgba(139, 94, 60, 0.2) !important;
+}
+
+.back-btn:hover {
+  background: rgba(139, 94, 60, 0.15) !important;
+  border-color: var(--color-primary) !important;
+}
+
+/* ============================================
+   반응형 - 폴더 그리드
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .navigation {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 10px;
+  }
+
+  .folder-card {
+    padding: 16px;
+    min-height: 110px;
+  }
+
+  .folder-card-emoji {
+    font-size: 28px;
+  }
+
+  .folder-card-name {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navigation {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  .folder-card {
+    padding: 12px;
+    min-height: 100px;
+  }
+
+  .folder-card-emoji {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  .folder-card-name {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navigation {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .folder-card {
+    padding: 10px;
+    min-height: 90px;
+    border-radius: 8px;
+  }
+
+  .folder-card-emoji {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .folder-card-name {
+    font-size: 10px;
   }
 }

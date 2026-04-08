@@ -1,5 +1,30 @@
 [
   {
+    "tags": ["드래곤"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/아르B1.png",
+    "name": "아르"
+  },
+  {
+    "tags": ["드래곤"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/아르B2.png",
+    "name": "아르"
+  },
+  {
+    "tags": ["드래곤"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/아르B3.png",
+    "name": "아르"
+  },
+  {
+    "tags": ["드래곤"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/아르B4.png",
+    "name": "아르"
+  },  
+  {
+    "tags": ["드래곤"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/아르B5.png",
+    "name": "아르"
+  },  
+  {
     "tags": ["목장"],
     "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/토끼B1.png",
     "name": "토끼"
@@ -9,7 +34,7 @@
     "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/토끼B2.png",
     "name": "토끼"
   },
-    {
+  {
     "tags": ["목장"],
     "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/토끼B3.png",
     "name": "토끼"

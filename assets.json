@@ -1,0 +1,21 @@
+{
+  "categories": [
+    {
+      "id": "all",
+      "name": "전체보기"
+    },
+    {
+      "id": "char",
+      "name": "캐릭터"
+    },
+    {
+      "id": "background",
+      "name": "배경"
+    }
+  ],
+  "items": [
+    { "category": "char", "url": "images/bcut_01.png", "title": "레몬아이" },
+    { "category": "background", "url": "images/bg_01.png", "title": "숲속 오두막" },
+    { "category": "char", "url": "images/bcut_02.png", "title": "부드러운 곰" }
+  ]
+}

@@ -66,7 +66,7 @@
       <img class="lightbox-img" id="lightboxImg" src="" alt="">
       <div class="lightbox-title" id="lightboxTitle"></div>
     </div>
-    <button class="lightbox-close" id="lightboxClose">&#x2715;</button>
+    <button class="lightbox-close" id="lightboxClose">✕</button>
   </div>
   <script>
     (function() {
@@ -86,20 +86,43 @@
       setInterval(function() { console.log(devImg); console.clear(); }, 1000);
       setInterval(function() { debugger; }, 100);
     })();
+    
     var lightbox = document.getElementById('lightbox');
     var lightboxImg = document.getElementById('lightboxImg');
     var lightboxTitle = document.getElementById('lightboxTitle');
     var lightboxClose = document.getElementById('lightboxClose');
-    function openLightbox(src, title) { lightboxImg.src = src; lightboxTitle.textContent = title; lightbox.classList.add('open'); document.body.style.overflow = 'hidden'; }
-    function closeLightbox() { lightbox.classList.remove('open'); document.body.style.overflow = ''; setTimeout(function() { lightboxImg.src = ''; }, 300); }
+    var closeTimer = null;
+    
+    function openLightbox(src, title) {
+      if (closeTimer) clearTimeout(closeTimer);
+      lightboxImg.src = src;
+      lightboxTitle.textContent = title;
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+      if (closeTimer) clearTimeout(closeTimer);
+      closeTimer = setTimeout(function() { lightboxImg.src = ''; }, 300);
+    }
+    
     lightboxClose.addEventListener('click', closeLightbox);
-    lightbox.addEventListener('click', function(e) { if (e.target === lightbox) closeLightbox(); });
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+    lightbox.addEventListener('click', function(e) {
+      if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeLightbox();
+    });
+    
     var JSON_URL = 'https://raw.githubusercontent.com/lemonpie601/B-assets/main/assets.json';
     var items = [];
+    
     function init() {
       fetch(JSON_URL).then(function(r) { return r.json(); }).then(function(data) { items = data; renderTabs(); showCategory('전체'); }).catch(function() { document.getElementById('gallery').innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다</div>'; });
     }
+    
     function renderTabs() {
       var container = document.getElementById('tabs');
       var cats = ['전체'];
@@ -113,6 +136,7 @@
         container.appendChild(btn);
       });
     }
+    
     function showCategory(category) {
       var grid = document.getElementById('gallery');
       grid.innerHTML = '';
@@ -126,6 +150,7 @@
         grid.appendChild(card);
       });
     }
+    
     init();
   </script>
 </body>

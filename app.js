@@ -1,5 +1,5 @@
 /* ============================================
-   레몬파이와 B컷 - 리스트 형식 네비게이션
+   레몬파이와 B컷 - 유연한 폴더 네비게이션
    ============================================ */
 
 // ============================================
@@ -79,7 +79,7 @@ const scrollbarThumb = document.getElementById('scrollbarThumb');
 
 async function loadData() {
   try {
-    const response = await fetch('https://raw.githubusercontent.com/lemonpie601/B-assets/main/assets.json');
+    const response = await fetch('./assets.json');
     const data = await response.json();
     
     allItems = data.map((item, index) => ({
@@ -115,7 +115,7 @@ function buildFolderTree() {
 }
 
 // ============================================
-// 첫 번째 폴더들 가져오기
+// 첫 번째 폴더들 가져오기 (유연함)
 // ============================================
 
 function getFirstLevelFolders() {
@@ -125,12 +125,22 @@ function getFirstLevelFolders() {
     if (item.tags && item.tags.length > 0) {
       const firstFolder = item.tags[0];
       if (!folders.has(firstFolder)) {
-        folders.set(firstFolder, true);
+        // 이 폴더의 최대 깊이 확인
+        const maxDepth = Math.max(
+          ...allItems
+            .filter(i => i.tags && i.tags[0] === firstFolder)
+            .map(i => i.tags.length)
+        );
+        
+        folders.set(firstFolder, {
+          depth: maxDepth,
+          hasSubfolders: maxDepth > 1
+        });
       }
     }
   });
 
-  return Array.from(folders.keys()).sort();
+  return Array.from(folders.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 }
 
 // ============================================
@@ -170,7 +180,9 @@ function renderHomeScreen() {
   
   const folders = getFirstLevelFolders();
   
-  folders.forEach((folderName, index) => {
+  folders.forEach((folder, index) => {
+    const folderName = folder[0];
+    const folderInfo = folder[1];
     const emoji = emojiMap[index % emojiMap.length];
     
     const folderCard = document.createElement('div');
@@ -181,7 +193,13 @@ function renderHomeScreen() {
     `;
     
     folderCard.addEventListener('click', () => {
-      selectFolder([folderName]);
+      if (folderInfo.hasSubfolders) {
+        // 서브폴더가 있으면 서브폴더 리스트로
+        selectFolder([folderName]);
+      } else {
+        // 서브폴더가 없으면 바로 이미지 표시
+        selectFolder([folderName]);
+      }
     });
     
     navigation.appendChild(folderCard);
@@ -189,14 +207,14 @@ function renderHomeScreen() {
 }
 
 // ============================================
-// 서브폴더 렌더링 (리스트)
+// 서브폴더/이미지 렌더링
 // ============================================
 
-function renderSubfolderList() {
+function renderContent() {
   navigation.innerHTML = '';
   
   const parentPath = currentPath.slice(0, -1);
-  const subfolders = getSubfolders(parentPath);
+  const currentLevel = currentPath.length;
   
   // 뒤로가기 버튼
   const backBtn = document.createElement('div');
@@ -216,35 +234,32 @@ function renderSubfolderList() {
   });
   navigation.appendChild(backBtn);
   
-  // 서브폴더들
-  subfolders.forEach((subfolder, index) => {
-    const emoji = emojiMap[(index + 1) % emojiMap.length];
-    
-    const navItem = document.createElement('div');
-    navItem.className = 'nav-item';
-    
-    const subSubfolders = getSubfolders([...parentPath, subfolder]);
-    const hasSubfolders = subSubfolders.length > 0;
-    
-    navItem.innerHTML = `
-      <div class="nav-item-left">
-        <span class="nav-emoji">${emoji}</span>
-        <span class="nav-name">${subfolder}</span>
-      </div>
-      <div class="nav-toggle">${hasSubfolders ? '▶' : ''}</div>
-    `;
-    
-    navItem.addEventListener('click', () => {
-      selectFolder([...parentPath, subfolder]);
+  // 다음 레벨의 서브폴더들
+  const subfolders = getSubfolders(currentPath);
+  
+  if (subfolders.length > 0) {
+    // 서브폴더가 있으면 리스트로 표시
+    subfolders.forEach((subfolder, index) => {
+      const emoji = emojiMap[(index + 1) % emojiMap.length];
       
-      if (hasSubfolders) {
-        // 서브서브폴더 표시
-        renderSubfolderList();
-      }
+      const navItem = document.createElement('div');
+      navItem.className = 'nav-item';
+      
+      navItem.innerHTML = `
+        <div class="nav-item-left">
+          <span class="nav-emoji">${emoji}</span>
+          <span class="nav-name">${subfolder}</span>
+        </div>
+        <div class="nav-toggle">▶</div>
+      `;
+      
+      navItem.addEventListener('click', () => {
+        selectFolder([...currentPath, subfolder]);
+      });
+      
+      navigation.appendChild(navItem);
     });
-    
-    navigation.appendChild(navItem);
-  });
+  }
 }
 
 // ============================================
@@ -257,7 +272,7 @@ function selectFolder(path) {
   if (currentPath.length === 0) {
     renderHomeScreen();
   } else {
-    renderSubfolderList();
+    renderContent();
   }
   
   renderGallery();
@@ -279,14 +294,21 @@ function renderGallery() {
   const path = currentPath.join('|');
   const items = folderTree[path] || [];
   
+  if (items.length === 0) {
+    // 이미지가 없으면 서브폴더 확인
+    const subfolders = getSubfolders(currentPath);
+    if (subfolders.length === 0) {
+      const emoji = '🥧';
+      const title = currentPath[currentPath.length - 1];
+      galleryHeader.innerHTML = `<div class="gallery-header-title">${emoji} ${title}</div>`;
+      gallery.innerHTML = '<div class="empty-state">이 폴더는 비어있습니다 🥧</div>';
+    }
+    return;
+  }
+  
   const emoji = '🥧';
   const title = currentPath[currentPath.length - 1];
   galleryHeader.innerHTML = `<div class="gallery-header-title">${emoji} ${title}</div>`;
-  
-  if (items.length === 0) {
-    gallery.innerHTML = '<div class="empty-state">이 폴더는 비어있습니다 🥧</div>';
-    return;
-  }
   
   items.forEach(item => {
     const card = document.createElement('div');

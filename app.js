@@ -46,10 +46,6 @@
     console.log(testImage);
     console.clear();
   }, 1000);
-
-  setInterval(function() {
-    debugger;
-  }, 100);
 })();
 
 // 커스텀 스크롤바
@@ -123,7 +119,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 // 데이터 로드 및 렌더링
-var assetsUrl = 'https://raw.githubusercontent.com/lemonpie601/B-assets/main/assets.json';
+var assetsUrl = './assets.json';  // 로컬 파일로 변경
 var allItems = [];
 
 function loadData() {

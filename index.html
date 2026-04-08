@@ -234,35 +234,46 @@
     .blocked-overlay .lock-msg { font-size: 20px; font-weight: 700; color: #5d4037; }
     .blocked-overlay .lock-sub { font-size: 14px; color: #a08070; }
 
-    /* ── 커스텀 스크롤바 (이모지) ── */
-    .scrollbar-track {
-      position: fixed;
-      right: 0;
-      top: 0;
-      width: 70px;
-      height: 100vh;
-      background: transparent;
-      z-index: 1000;
-      pointer-events: none;
+    /* 2. 커스텀 이모지 스크롤바 설정 */
+    /* 기본적으로 모바일에서는 보이지 않도록 display: none 처리 */
+    .scrollbar-track, .scrollbar-thumb {
+      display: none;
     }
-    .scrollbar-thumb {
-      position: fixed;
-      right: 5px;
-      width: 60px;
-      height: 60px;
-      font-size: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: grab;
-      z-index: 1001;
-      user-select: none;
-      transition: transform 0.1s;
-      pointer-events: auto;
-      line-height: 1;
+    
+    /* 3. 화면 너비가 1024px 이상인 PC에서만 나타나게 함 */
+    @media (min-width: 1024px) {
+      .scrollbar-track {
+        display: block; /* PC에서 다시 보임 */
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 70px;
+        height: 100vh;
+        background: transparent;
+        z-index: 1000;
+        pointer-events: none;
+      }
+    
+      .scrollbar-thumb {
+        display: flex; /* PC에서 다시 보임 */
+        position: fixed;
+        right: 5px;
+        width: 60px;
+        height: 60px;
+        font-size: 50px;
+        align-items: center;
+        justify-content: center;
+        cursor: grab;
+        z-index: 1001;
+        user-select: none;
+        transition: transform 0.1s;
+        pointer-events: auto;
+        line-height: 1;
+      }
+    
+      .scrollbar-thumb:hover { transform: scale(1.1); }
+      .scrollbar-thumb:active { cursor: grabbing; }
     }
-    .scrollbar-thumb:hover { transform: scale(1.1); }
-    .scrollbar-thumb:active { cursor: grabbing; }
   </style>
 </head>
 

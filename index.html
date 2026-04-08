@@ -16,10 +16,13 @@
       -moz-user-select: none;
       user-select: none;
       min-height: 100vh;
-      scrollbar-width: none;
       overflow-y: scroll;
+      scrollbar-width: none;
     }
-    body::-webkit-scrollbar { display: none; }
+    /* 모든 브라우저의 기본 스크롤바 제거 */
+    ::-webkit-scrollbar { display: none !important; width: 0 !important; }
+    html { scrollbar-width: none; }
+    body::-webkit-scrollbar { display: none !important; }
 
     /* ── 헤더 ── */
     .site-header {
@@ -230,7 +233,7 @@
       position: fixed;
       right: 0;
       top: 0;
-      width: 40px;
+      width: 70px;
       height: 100vh;
       background: transparent;
       z-index: 1000;
@@ -239,9 +242,9 @@
     .scrollbar-thumb {
       position: fixed;
       right: 5px;
-      width: 30px;
-      height: 30px;
-      font-size: 24px;
+      width: 60px;
+      height: 60px;
+      font-size: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -250,8 +253,9 @@
       user-select: none;
       transition: transform 0.1s;
       pointer-events: auto;
+      line-height: 1;
     }
-    .scrollbar-thumb:hover { transform: scale(1.15); }
+    .scrollbar-thumb:hover { transform: scale(1.1); }
     .scrollbar-thumb:active { cursor: grabbing; }
   </style>
 </head>
@@ -354,7 +358,7 @@
 
     function updateScrollbar() {
       var scrollPercentage = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-      var thumbPosition = (window.innerHeight - 30) * (scrollPercentage / 100);
+      var thumbPosition = (window.innerHeight - 60) * (scrollPercentage / 100);
       thumb.style.top = thumbPosition + 'px';
       thumb.textContent = scrollPercentage > 50 ? '🥧' : '🍋';
     }
@@ -369,7 +373,7 @@
 
     document.addEventListener('mousemove', function(e) {
       if (!isDragging) return;
-      var trackHeight = window.innerHeight - 30;
+      var trackHeight = window.innerHeight - 60;
       var newTop = e.clientY - dragStartY;
       newTop = Math.max(0, Math.min(newTop, trackHeight));
       var scrollPercentage = (newTop / trackHeight) * 100;

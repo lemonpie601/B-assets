@@ -1,21 +1,21 @@
 [
   {
-    "tab": "캐릭터",
+    "tags": ["캐릭터"],
     "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/12.webp",
     "name": "레몬파이"
   },
   {
-    "tab": "배경",
+    "tags": ["배경"],
     "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/3.png",
     "name": "이거 뭔데라"
   },
   {
-    "tab": "B컷",
+    "tags": ["B컷"],
     "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/4.png",
     "name": "하아롱"
   },
   {
-    "tab": "B컷",
+    "tags": ["B컷", "테스트"],
     "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/단5.png",
     "name": "우와와"
   }

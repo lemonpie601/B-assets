@@ -125,17 +125,12 @@ function getFirstLevelFolders() {
     if (item.tags && item.tags.length > 0) {
       const firstFolder = item.tags[0];
       if (!folders.has(firstFolder)) {
-        const count = Array.from(new Set(
-          allItems
-            .filter(i => i.tags && i.tags[0] === firstFolder)
-            .map(i => i.tags.join('|'))
-        )).length;
-        folders.set(firstFolder, count);
+        folders.set(firstFolder, true);
       }
     }
   });
 
-  return Array.from(folders.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  return Array.from(folders.keys()).sort();
 }
 
 // ============================================
@@ -143,7 +138,7 @@ function getFirstLevelFolders() {
 // ============================================
 
 function getSubfolders(parentPath) {
-  const subfolders = new Map();
+  const subfolders = new Set();
   
   Object.keys(folderTree).forEach(path => {
     const tags = path.split('|');
@@ -158,180 +153,97 @@ function getSubfolders(parentPath) {
       }
       
       if (matches) {
-        const subfolder = tags[parentPath.length];
-        if (!subfolders.has(subfolder)) {
-          subfolders.set(subfolder, 0);
-        }
-        subfolders.set(subfolder, subfolders.get(subfolder) + 1);
+        subfolders.add(tags[parentPath.length]);
       }
     }
   });
 
-  return Array.from(subfolders.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  return Array.from(subfolders).sort();
 }
 
 // ============================================
-// 네비게이션 렌더링
+// 홈 화면 렌더링 (폴더 그리드)
 // ============================================
 
-function renderNavigation() {
+function renderHomeScreen() {
   navigation.innerHTML = '';
   
   const folders = getFirstLevelFolders();
   
-  folders.forEach((folder, index) => {
-    const folderName = folder[0];
-    const totalCount = folder[1];
+  folders.forEach((folderName, index) => {
     const emoji = emojiMap[index % emojiMap.length];
+    
+    const folderCard = document.createElement('div');
+    folderCard.className = 'folder-card';
+    folderCard.innerHTML = `
+      <div class="folder-card-emoji">${emoji}</div>
+      <div class="folder-card-name">${folderName}</div>
+    `;
+    
+    folderCard.addEventListener('click', () => {
+      selectFolder([folderName]);
+    });
+    
+    navigation.appendChild(folderCard);
+  });
+}
+
+// ============================================
+// 서브폴더 렌더링 (리스트)
+// ============================================
+
+function renderSubfolderList() {
+  navigation.innerHTML = '';
+  
+  const parentPath = currentPath.slice(0, -1);
+  const subfolders = getSubfolders(parentPath);
+  
+  // 뒤로가기 버튼
+  const backBtn = document.createElement('div');
+  backBtn.className = 'nav-item back-btn';
+  backBtn.innerHTML = `
+    <div class="nav-item-left">
+      <span class="nav-emoji">◀</span>
+      <span class="nav-name">뒤로가기</span>
+    </div>
+  `;
+  backBtn.addEventListener('click', () => {
+    if (parentPath.length > 0) {
+      selectFolder(parentPath);
+    } else {
+      selectFolder([]);
+    }
+  });
+  navigation.appendChild(backBtn);
+  
+  // 서브폴더들
+  subfolders.forEach((subfolder, index) => {
+    const emoji = emojiMap[(index + 1) % emojiMap.length];
     
     const navItem = document.createElement('div');
     navItem.className = 'nav-item';
     
-    const subfolders = getSubfolders([folderName]);
-    const hasSubfolders = subfolders.length > 0;
+    const subSubfolders = getSubfolders([...parentPath, subfolder]);
+    const hasSubfolders = subSubfolders.length > 0;
     
     navItem.innerHTML = `
       <div class="nav-item-left">
         <span class="nav-emoji">${emoji}</span>
-        <span class="nav-name">${folderName}</span>
-        <span class="nav-count">${totalCount}</span>
+        <span class="nav-name">${subfolder}</span>
       </div>
       <div class="nav-toggle">${hasSubfolders ? '▶' : ''}</div>
     `;
     
     navItem.addEventListener('click', () => {
-      // 이미 선택된 폴더를 다시 클릭하면 홈으로
-      if (currentPath.length > 0 && currentPath[0] === folderName) {
-        selectFolder([]);
-        
-        // 모든 펼쳐진 상태 닫기
-        document.querySelectorAll('.nav-subitems').forEach(el => {
-          el.classList.remove('open');
-        });
-        document.querySelectorAll('.nav-toggle').forEach(el => {
-          el.classList.remove('open');
-        });
-        document.querySelectorAll('.nav-item').forEach(el => {
-          el.classList.remove('active');
-        });
-      } else {
-        selectFolder([folderName]);
-        
-        if (hasSubfolders) {
-          const subitems = navItem.nextElementSibling;
-          if (subitems && subitems.classList.contains('nav-subitems')) {
-            subitems.classList.toggle('open');
-            const toggle = navItem.querySelector('.nav-toggle');
-            toggle.classList.toggle('open');
-          }
-        }
+      selectFolder([...parentPath, subfolder]);
+      
+      if (hasSubfolders) {
+        // 서브서브폴더 표시
+        renderSubfolderList();
       }
     });
     
     navigation.appendChild(navItem);
-    
-    // 서브폴더들
-    if (hasSubfolders) {
-      const subitems = document.createElement('div');
-      subitems.className = 'nav-subitems';
-      
-      subfolders.forEach((subfolder, subIndex) => {
-        const subfolderName = subfolder[0];
-        const subEmoji = emojiMap[(index + subIndex + 1) % emojiMap.length];
-        
-        const subitem = document.createElement('div');
-        subitem.className = 'nav-subitem';
-        
-        const subSubfolders = getSubfolders([folderName, subfolderName]);
-        const hasSubSubfolders = subSubfolders.length > 0;
-        
-        subitem.innerHTML = `
-          <div class="nav-item-left">
-            <span class="nav-emoji">${subEmoji}</span>
-            <span class="nav-name">${subfolderName}</span>
-            <span class="nav-count">${subfolder[1]}</span>
-          </div>
-          ${hasSubSubfolders ? '<div class="nav-toggle">▶</div>' : ''}
-        `;
-        
-        subitem.addEventListener('click', (e) => {
-          e.stopPropagation();
-          
-          // 이미 선택된 서브폴더를 다시 클릭하면 부모로 돌아가기
-          if (currentPath.length > 1 && currentPath[0] === folderName && currentPath[1] === subfolderName) {
-            selectFolder([folderName]);
-            
-            // 서브서브폴더 닫기
-            const subsubitems = subitem.nextElementSibling;
-            if (subsubitems && subsubitems.classList.contains('nav-subitems')) {
-              subsubitems.classList.remove('open');
-            }
-            
-            // 토글 상태 제거
-            document.querySelectorAll('.nav-subitem .nav-toggle').forEach(el => {
-              el.classList.remove('open');
-            });
-            document.querySelectorAll('.nav-subitem').forEach(el => {
-              el.classList.remove('active');
-            });
-          } else {
-            selectFolder([folderName, subfolderName]);
-            
-            if (hasSubSubfolders) {
-              const subsubitems = subitem.nextElementSibling;
-              if (subsubitems && subsubitems.classList.contains('nav-subitems')) {
-                subsubitems.classList.toggle('open');
-                const toggle = subitem.querySelector('.nav-toggle');
-                if (toggle) toggle.classList.toggle('open');
-              }
-            }
-          }
-        });
-        
-        subitems.appendChild(subitem);
-        
-        // 서브서브폴더들
-        if (hasSubSubfolders) {
-          const subsubitems = document.createElement('div');
-          subsubitems.className = 'nav-subitems';
-          
-          subSubfolders.forEach((subsubfolder, subsubIndex) => {
-            const subsubfolderName = subsubfolder[0];
-            const subsubEmoji = emojiMap[(index + subIndex + subsubIndex + 2) % emojiMap.length];
-            
-            const subsubitem = document.createElement('div');
-            subsubitem.className = 'nav-subitem';
-            subsubitem.style.marginLeft = '16px';
-            
-            subsubitem.innerHTML = `
-              <div class="nav-item-left">
-                <span class="nav-emoji">${subsubEmoji}</span>
-                <span class="nav-name">${subsubfolderName}</span>
-                <span class="nav-count">${subsubfolder[1]}</span>
-              </div>
-            `;
-            
-            subsubitem.addEventListener('click', (e) => {
-              e.stopPropagation();
-              
-              // 이미 선택된 서브서브폴더를 다시 클릭하면 부모로 돌아가기
-              if (currentPath.length > 2 && currentPath[0] === folderName && 
-                  currentPath[1] === subfolderName && currentPath[2] === subsubfolderName) {
-                selectFolder([folderName, subfolderName]);
-              } else {
-                selectFolder([folderName, subfolderName, subsubfolderName]);
-              }
-            });
-            
-            subsubitems.appendChild(subsubitem);
-          });
-          
-          subitems.appendChild(subsubitems);
-        }
-      });
-      
-      navigation.appendChild(subitems);
-    }
   });
 }
 
@@ -342,22 +254,10 @@ function renderNavigation() {
 function selectFolder(path) {
   currentPath = path;
   
-  // 활성화 상태 업데이트
-  document.querySelectorAll('.nav-item, .nav-subitem').forEach(item => {
-    item.classList.remove('active');
-  });
-  
-  // 현재 경로의 마지막 폴더를 활성화
-  if (currentPath.length > 0) {
-    const lastFolder = currentPath[currentPath.length - 1];
-    const navItems = document.querySelectorAll('.nav-item, .nav-subitem');
-    
-    navItems.forEach(item => {
-      const nameEl = item.querySelector('.nav-name');
-      if (nameEl && nameEl.textContent === lastFolder) {
-        item.classList.add('active');
-      }
-    });
+  if (currentPath.length === 0) {
+    renderHomeScreen();
+  } else {
+    renderSubfolderList();
   }
   
   renderGallery();

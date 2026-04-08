@@ -1,5 +1,6 @@
 /* ============================================
    레몬파이와 B컷 - 애플리케이션 로직
+   다중 계층 폴더 탐색 (태그 기반)
    ============================================ */
 
 // ============================================
@@ -7,28 +8,19 @@
 // ============================================
 
 (function() {
-  // F12 키 차단
   document.addEventListener('keydown', function(e) {
-    // F12
     if (e.keyCode === 123) {
       e.preventDefault();
       e.stopPropagation();
       return false;
     }
     
-    // Ctrl+Shift+I (개발자 도구)
-    // Ctrl+Shift+J (콘솔)
-    // Ctrl+Shift+C (검사)
-    // Ctrl+Shift+K (네트워크)
     if (e.ctrlKey && e.shiftKey && [73, 74, 67, 75].indexOf(e.keyCode) !== -1) {
       e.preventDefault();
       e.stopPropagation();
       return false;
     }
     
-    // Ctrl+U (소스 보기)
-    // Ctrl+S (저장)
-    // Ctrl+P (인쇄)
     if (e.ctrlKey && [85, 83, 80].indexOf(e.keyCode) !== -1) {
       e.preventDefault();
       e.stopPropagation();
@@ -36,7 +28,6 @@
     }
   }, true);
 
-  // 개발자 도구 열림 감지 (창 크기 비교)
   var threshold = 160;
   function checkDevTools() {
     if ((window.outerWidth - window.innerWidth > threshold) ||
@@ -47,7 +38,6 @@
   
   setInterval(checkDevTools, 500);
 
-  // debugger 감지
   var testImg = new Image();
   Object.defineProperty(testImg, 'id', {
     get: function() {
@@ -61,7 +51,6 @@
     console.clear();
   }, 1000);
 
-  // 페이지 접근 차단
   function blockAccess() {
     document.documentElement.innerHTML = `
       <html style="background: #faf7f2; margin: 0; padding: 0;">
@@ -92,8 +81,8 @@
 
 // 데이터 저장소
 let allItems = [];
-let categoryHierarchy = {}; // { 카테고리: [서브카테고리, ...] }
-let filters = {}; // { 카테고리: 선택된 서브카테고리 }
+let folderTree = {}; // 중첩된 폴더 구조
+let currentPath = []; // 현재 경로 배열
 
 // DOM 요소
 const filtersContainer = document.getElementById('filters');
@@ -115,16 +104,13 @@ async function loadData() {
     
     const data = await response.json();
     
-    // 데이터 처리
-    allItems = data.map(item => ({
+    allItems = data.map((item, index) => ({
       ...item,
+      index: index,
       tags: Array.isArray(item.tags) ? item.tags : [item.tags || '기타']
     }));
 
-    // 카테고리 계층 구조 구축
-    buildCategoryHierarchy();
-    
-    // UI 렌더링
+    buildFolderTree();
     renderFilters();
     renderGallery();
   } catch (error) {
@@ -134,163 +120,150 @@ async function loadData() {
 }
 
 // ============================================
-// 카테고리 계층 구조 구축
+// 폴더 트리 구축 (다중 계층)
 // ============================================
 
-function buildCategoryHierarchy() {
-  categoryHierarchy = {};
+function buildFolderTree() {
+  folderTree = { folders: {}, items: [] };
 
   allItems.forEach(item => {
     if (item.tags && item.tags.length > 0) {
-      const mainCategory = item.tags[0];
+      // 폴더 경로를 따라 트리를 만들어감
+      let currentNode = folderTree;
       
-      if (!categoryHierarchy[mainCategory]) {
-        categoryHierarchy[mainCategory] = new Set();
-      }
-
-      // 서브카테고리 추가 (2개 이상의 태그가 있으면)
-      if (item.tags.length > 1) {
-        item.tags.slice(1).forEach(subTag => {
-          categoryHierarchy[mainCategory].add(subTag);
-        });
-      }
+      // 각 태그를 폴더 레벨로 처리
+      item.tags.forEach((tag, index) => {
+        if (!currentNode.folders) {
+          currentNode.folders = {};
+        }
+        
+        if (!currentNode.folders[tag]) {
+          currentNode.folders[tag] = { folders: {}, items: [] };
+        }
+        
+        currentNode = currentNode.folders[tag];
+      });
+      
+      // 최종 폴더에 아이템 추가
+      currentNode.items.push(item);
     }
-  });
-
-  // Set을 배열로 변환
-  Object.keys(categoryHierarchy).forEach(key => {
-    categoryHierarchy[key] = Array.from(categoryHierarchy[key]).sort();
-  });
-
-  // 초기 필터 상태
-  filters = {};
-  Object.keys(categoryHierarchy).forEach(category => {
-    filters[category] = null; // null = 모두 선택
   });
 }
 
 // ============================================
-// 필터 UI 렌더링
+// 현재 경로의 노드 가져오기
+// ============================================
+
+function getCurrentNode() {
+  let node = folderTree;
+  
+  for (let folder of currentPath) {
+    if (node.folders && node.folders[folder]) {
+      node = node.folders[folder];
+    } else {
+      return null;
+    }
+  }
+  
+  return node;
+}
+
+// ============================================
+// 필터(폴더) UI 렌더링
 // ============================================
 
 function renderFilters() {
   filtersContainer.innerHTML = '';
 
-  Object.keys(categoryHierarchy).sort().forEach(category => {
-    const subcategories = categoryHierarchy[category];
-    
-    // 필터 그룹 생성
-    const filterGroup = document.createElement('div');
-    filterGroup.className = 'filter-group';
+  // 경로 표시 (Breadcrumb)
+  const breadcrumb = document.createElement('div');
+  breadcrumb.className = 'breadcrumb';
 
-    // 필터 버튼
-    const filterBtn = document.createElement('button');
-    filterBtn.className = 'filter-btn';
-    filterBtn.textContent = category;
-    filterBtn.setAttribute('data-category', category);
-
-    // 드롭다운 메뉴
-    const filterMenu = document.createElement('div');
-    filterMenu.className = 'filter-menu';
-
-    // "전체" 옵션
-    const allOption = document.createElement('button');
-    allOption.className = 'filter-option selected';
-    allOption.textContent = '전체 보기';
-    allOption.addEventListener('click', () => {
-      selectSubcategory(category, null, filterBtn, filterMenu);
-    });
-    filterMenu.appendChild(allOption);
-
-    // 서브카테고리 옵션
-    subcategories.forEach(subcat => {
-      const option = document.createElement('button');
-      option.className = 'filter-option';
-      option.textContent = subcat;
-      option.addEventListener('click', () => {
-        selectSubcategory(category, subcat, filterBtn, filterMenu);
-      });
-      filterMenu.appendChild(option);
-    });
-
-    // 메뉴 토글
-    filterBtn.addEventListener('click', () => {
-      const isOpen = filterMenu.classList.toggle('open');
-      filterBtn.classList.toggle('open', isOpen);
-
-      // 다른 메뉴 닫기
-      document.querySelectorAll('.filter-menu.open').forEach(menu => {
-        if (menu !== filterMenu) {
-          menu.classList.remove('open');
-          menu.previousElementSibling?.classList.remove('open');
-        }
-      });
-    });
-
-    // 외부 클릭 시 닫기
-    document.addEventListener('click', (e) => {
-      if (!filterGroup.contains(e.target)) {
-        filterMenu.classList.remove('open');
-        filterBtn.classList.remove('open');
-      }
-    });
-
-    filterGroup.appendChild(filterBtn);
-    filterGroup.appendChild(filterMenu);
-    filtersContainer.appendChild(filterGroup);
+  const homeBtn = document.createElement('button');
+  homeBtn.className = 'breadcrumb-btn';
+  homeBtn.textContent = '📁 홈';
+  homeBtn.addEventListener('click', () => {
+    currentPath = [];
+    renderFilters();
+    renderGallery();
   });
-}
+  breadcrumb.appendChild(homeBtn);
 
-// ============================================
-// 서브카테고리 선택
-// ============================================
+  currentPath.forEach((folder, index) => {
+    const separator = document.createElement('span');
+    separator.className = 'breadcrumb-separator';
+    separator.textContent = ' > ';
+    breadcrumb.appendChild(separator);
 
-function selectSubcategory(category, subcategory, btn, menu) {
-  filters[category] = subcategory;
-
-  // UI 업데이트
-  menu.querySelectorAll('.filter-option').forEach(option => {
-    option.classList.remove('selected');
+    const btn = document.createElement('button');
+    btn.className = 'breadcrumb-btn';
+    btn.textContent = '📁 ' + folder;
+    btn.addEventListener('click', () => {
+      currentPath = currentPath.slice(0, index + 1);
+      renderFilters();
+      renderGallery();
+    });
+    breadcrumb.appendChild(btn);
   });
 
-  if (subcategory === null) {
-    menu.querySelector('.filter-option').classList.add('selected');
-    btn.textContent = category;
-  } else {
-    Array.from(menu.querySelectorAll('.filter-option')).find(
-      o => o.textContent === subcategory
-    )?.classList.add('selected');
-    btn.textContent = subcategory;
+  filtersContainer.appendChild(breadcrumb);
+
+  // 현재 노드의 폴더와 아이템 표시
+  const currentNode = getCurrentNode();
+  
+  if (!currentNode) {
+    gallery.innerHTML = '<div class="empty-state">폴더를 찾을 수 없습니다 🍋</div>';
+    return;
   }
 
-  menu.classList.remove('open');
-  btn.classList.remove('open');
+  const filterInner = document.createElement('div');
+  filterInner.className = 'filter-inner';
 
-  // 갤러리 새로고침
-  renderGallery();
+  // 폴더 표시
+  if (currentNode.folders && Object.keys(currentNode.folders).length > 0) {
+    Object.keys(currentNode.folders).sort().forEach(folderName => {
+      const subNode = currentNode.folders[folderName];
+      const itemCount = countItems(subNode);
+      
+      const folderBtn = document.createElement('button');
+      folderBtn.className = 'filter-btn folder-btn';
+      folderBtn.innerHTML = `📁 ${folderName} <span class="folder-count">${itemCount}</span>`;
+      folderBtn.addEventListener('click', () => {
+        currentPath.push(folderName);
+        renderFilters();
+        renderGallery();
+      });
+      filterInner.appendChild(folderBtn);
+    });
+  }
+
+  // 아이템이 있으면 안내 메시지
+  if (currentNode.items && currentNode.items.length > 0) {
+    const info = document.createElement('div');
+    info.className = 'folder-info';
+    info.textContent = `${currentNode.items.length}개의 이미지`;
+    filterInner.appendChild(info);
+  }
+
+  filtersContainer.appendChild(filterInner);
 }
 
 // ============================================
-// 필터링된 아이템 얻기
+// 노드의 모든 아이템 개수 계산
 // ============================================
 
-function getFilteredItems() {
-  return allItems.filter(item => {
-    if (!item.tags || item.tags.length === 0) return false;
-
-    const mainCategory = item.tags[0];
-    const selectedSubcategory = filters[mainCategory];
-
-    // 메인 카테고리 확인
-    if (item.tags[0] !== mainCategory) return false;
-
-    // 서브카테고리 확인
-    if (selectedSubcategory === null) {
-      return true; // 전체 보기
-    } else {
-      return item.tags.includes(selectedSubcategory);
-    }
-  });
+function countItems(node) {
+  if (!node) return 0;
+  
+  let count = (node.items ? node.items.length : 0);
+  
+  if (node.folders) {
+    Object.values(node.folders).forEach(subNode => {
+      count += countItems(subNode);
+    });
+  }
+  
+  return count;
 }
 
 // ============================================
@@ -298,19 +271,31 @@ function getFilteredItems() {
 // ============================================
 
 function renderGallery() {
-  const filteredItems = getFilteredItems();
   gallery.innerHTML = '';
 
-  if (filteredItems.length === 0) {
-    gallery.innerHTML = '<div class="empty-state">해당하는 에셋이 없습니다 🍋</div>';
+  const currentNode = getCurrentNode();
+  
+  if (!currentNode) {
+    gallery.innerHTML = '<div class="empty-state">폴더를 찾을 수 없습니다 🍋</div>';
     return;
   }
 
-  filteredItems.forEach(item => {
+  // 아이템이 없으면 안내
+  if (!currentNode.items || currentNode.items.length === 0) {
+    if (!currentNode.folders || Object.keys(currentNode.folders).length === 0) {
+      gallery.innerHTML = '<div class="empty-state">이 폴더는 비어있습니다 🍋</div>';
+      return;
+    } else {
+      gallery.innerHTML = '<div class="empty-state">폴더를 열어서 이미지를 확인하세요 📁</div>';
+      return;
+    }
+  }
+
+  // 아이템 표시
+  currentNode.items.forEach(item => {
     const card = document.createElement('div');
     card.className = 'card';
 
-    // 태그 HTML 생성
     const tagsHtml = item.tags
       .map(tag => `<span class="card-tag">${tag}</span>`)
       .join('');

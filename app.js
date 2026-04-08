@@ -1,6 +1,5 @@
 /* ============================================
-   레몬파이와 B컷 - 새로운 네비게이션
-   좌측 폴더 + 우측 이미지
+   레몬파이와 B컷 - 리스트 형식 네비게이션
    ============================================ */
 
 // ============================================
@@ -62,8 +61,10 @@
 let allItems = [];
 let folderTree = {};
 let currentPath = [];
+const emojiMap = ['🥧', '🍋', '🔥', '🍯', '🎂', '🧁', '🍪', '🥐', '🍩'];
 
-const folderTree_el = document.getElementById('folderTree');
+// DOM
+const navigation = document.getElementById('navigation');
 const gallery = document.getElementById('gallery');
 const galleryHeader = document.getElementById('galleryHeader');
 const lightbox = document.getElementById('lightbox');
@@ -71,21 +72,6 @@ const lightboxImg = document.getElementById('lightboxImg');
 const lightboxTitle = document.getElementById('lightboxTitle');
 const lightboxClose = document.getElementById('lightboxClose');
 const scrollbarThumb = document.getElementById('scrollbarThumb');
-
-// ============================================
-// 이모지 맵핑 (폴더 차별화)
-// ============================================
-
-const emojiMap = {
-  0: ['🥧', '🍋', '🔥'],
-  1: ['🍯', '🎂', '🧁'],
-  2: ['🍪', '🥐', '🍩']
-};
-
-function getEmoji(name, depth) {
-  const hash = name.charCodeAt(0) % 3;
-  return emojiMap[Math.min(depth, 2)][hash];
-}
 
 // ============================================
 // 데이터 로드
@@ -103,8 +89,7 @@ async function loadData() {
     }));
 
     buildFolderTree();
-    renderFolderTree();
-    selectFolder(Object.keys(folderTree)[0] || []);
+    renderNavigation();
   } catch (error) {
     console.error('데이터 로드 실패:', error);
     gallery.innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다 😢</div>';
@@ -117,20 +102,20 @@ async function loadData() {
 
 function buildFolderTree() {
   folderTree = {};
-
+  
   allItems.forEach(item => {
     if (item.tags && item.tags.length > 0) {
-      const folderPath = item.tags.join('|');
-      if (!folderTree[folderPath]) {
-        folderTree[folderPath] = [];
+      const path = item.tags.join('|');
+      if (!folderTree[path]) {
+        folderTree[path] = [];
       }
-      folderTree[folderPath].push(item);
+      folderTree[path].push(item);
     }
   });
 }
 
 // ============================================
-// 첫 번째 폴더들만 가져오기
+// 첫 번째 폴더들 가져오기
 // ============================================
 
 function getFirstLevelFolders() {
@@ -140,20 +125,25 @@ function getFirstLevelFolders() {
     if (item.tags && item.tags.length > 0) {
       const firstFolder = item.tags[0];
       if (!folders.has(firstFolder)) {
-        folders.set(firstFolder, []);
+        const count = Array.from(new Set(
+          allItems
+            .filter(i => i.tags && i.tags[0] === firstFolder)
+            .map(i => i.tags.join('|'))
+        )).length;
+        folders.set(firstFolder, count);
       }
     }
   });
 
-  return Array.from(folders.keys()).sort();
+  return Array.from(folders.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 }
 
 // ============================================
-// 폴더의 서브폴더 가져오기
+// 경로별 서브폴더 가져오기
 // ============================================
 
 function getSubfolders(parentPath) {
-  const subfolders = new Set();
+  const subfolders = new Map();
   
   Object.keys(folderTree).forEach(path => {
     const tags = path.split('|');
@@ -168,153 +158,138 @@ function getSubfolders(parentPath) {
       }
       
       if (matches) {
-        subfolders.add(tags[parentPath.length]);
+        const subfolder = tags[parentPath.length];
+        if (!subfolders.has(subfolder)) {
+          subfolders.set(subfolder, 0);
+        }
+        subfolders.set(subfolder, subfolders.get(subfolder) + 1);
       }
     }
   });
 
-  return Array.from(subfolders).sort();
+  return Array.from(subfolders.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 }
 
 // ============================================
-// 폴더 트리 렌더링
+// 네비게이션 렌더링
 // ============================================
 
-function renderFolderTree() {
-  folderTree_el.innerHTML = '';
-  const firstLevelFolders = getFirstLevelFolders();
-
-  firstLevelFolders.forEach(folderName => {
-    renderFolderItem(folderName, 0, []);
-  });
-}
-
-function renderFolderItem(folderName, depth, parentPath) {
-  const folderItem = document.createElement('div');
-  folderItem.className = 'folder-item';
-
-  const currentPath_arr = [...parentPath, folderName];
-  const subfolders = getSubfolders(currentPath_arr);
-  const hasSubfolders = subfolders.length > 0;
-
-  const btn = document.createElement('button');
-  btn.className = 'folder-btn';
-  btn.setAttribute('data-depth', depth);
-
-  const toggle = document.createElement('span');
-  toggle.className = 'folder-toggle';
-  toggle.textContent = hasSubfolders ? '▶' : '';
-
-  const emoji = document.createElement('span');
-  emoji.className = 'folder-emoji';
-  emoji.textContent = getEmoji(folderName, depth);
-
-  btn.appendChild(toggle);
-  btn.appendChild(emoji);
-  btn.appendChild(document.createTextNode(' ' + folderName));
-
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    selectFolder(currentPath_arr);
+function renderNavigation() {
+  navigation.innerHTML = '';
+  
+  const folders = getFirstLevelFolders();
+  
+  folders.forEach((folder, index) => {
+    const folderName = folder[0];
+    const totalCount = folder[1];
+    const emoji = emojiMap[index % emojiMap.length];
     
-    if (hasSubfolders) {
-      const sublist = folderItem.querySelector('.subfolder-list');
-      sublist.classList.toggle('open');
-      toggle.classList.toggle('open');
-    }
-  });
-
-  folderItem.appendChild(btn);
-
-  if (hasSubfolders) {
-    const sublist = document.createElement('div');
-    sublist.className = 'subfolder-list';
-
-    subfolders.forEach(subfolder => {
-      renderFolderItem(subfolder, depth + 1, currentPath_arr);
+    const navItem = document.createElement('div');
+    navItem.className = 'nav-item';
+    
+    const subfolders = getSubfolders([folderName]);
+    const hasSubfolders = subfolders.length > 0;
+    
+    navItem.innerHTML = `
+      <div class="nav-item-left">
+        <span class="nav-emoji">${emoji}</span>
+        <span class="nav-name">${folderName}</span>
+        <span class="nav-count">${totalCount} Items</span>
+      </div>
+      <div class="nav-toggle">${hasSubfolders ? '▶' : ''}</div>
+    `;
+    
+    navItem.addEventListener('click', () => {
+      selectFolder([folderName]);
+      
+      if (hasSubfolders) {
+        const subitems = navItem.nextElementSibling;
+        if (subitems && subitems.classList.contains('nav-subitems')) {
+          subitems.classList.toggle('open');
+          const toggle = navItem.querySelector('.nav-toggle');
+          toggle.classList.toggle('open');
+        }
+      }
     });
-
-    // 재귀 대신 직접 렌더링
-    subfolders.forEach(subfolder => {
-      const subfolderItem = document.createElement('div');
-      subfolderItem.className = 'folder-item';
-
-      const subCurrentPath = [...currentPath_arr, subfolder];
-      const subSubfolders = getSubfolders(subCurrentPath);
-      const subHasSubfolders = subSubfolders.length > 0;
-
-      const subBtn = document.createElement('button');
-      subBtn.className = 'folder-btn';
-      subBtn.setAttribute('data-depth', depth + 1);
-
-      const subToggle = document.createElement('span');
-      subToggle.className = 'folder-toggle';
-      subToggle.textContent = subHasSubfolders ? '▶' : '';
-
-      const subEmoji = document.createElement('span');
-      subEmoji.className = 'folder-emoji';
-      subEmoji.textContent = getEmoji(subfolder, depth + 1);
-
-      subBtn.appendChild(subToggle);
-      subBtn.appendChild(subEmoji);
-      subBtn.appendChild(document.createTextNode(' ' + subfolder));
-
-      subBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectFolder(subCurrentPath);
+    
+    navigation.appendChild(navItem);
+    
+    // 서브폴더들
+    if (hasSubfolders) {
+      const subitems = document.createElement('div');
+      subitems.className = 'nav-subitems';
+      
+      subfolders.forEach((subfolder, subIndex) => {
+        const subfolderName = subfolder[0];
+        const subEmoji = emojiMap[(index + subIndex + 1) % emojiMap.length];
         
-        if (subHasSubfolders) {
-          const subSublist = subfolderItem.querySelector('.subfolder-list');
-          if (subSublist) {
-            subSublist.classList.toggle('open');
-            subToggle.classList.toggle('open');
+        const subitem = document.createElement('div');
+        subitem.className = 'nav-subitem';
+        
+        const subSubfolders = getSubfolders([folderName, subfolderName]);
+        const hasSubSubfolders = subSubfolders.length > 0;
+        
+        subitem.innerHTML = `
+          <div class="nav-item-left">
+            <span class="nav-emoji">${subEmoji}</span>
+            <span class="nav-name">${subfolderName}</span>
+            <span class="nav-count">${subfolder[1]} Items</span>
+          </div>
+          ${hasSubSubfolders ? '<div class="nav-toggle">▶</div>' : ''}
+        `;
+        
+        subitem.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectFolder([folderName, subfolderName]);
+          
+          if (hasSubSubfolders) {
+            const subsubitems = subitem.nextElementSibling;
+            if (subsubitems && subsubitems.classList.contains('nav-subitems')) {
+              subsubitems.classList.toggle('open');
+              const toggle = subitem.querySelector('.nav-toggle');
+              toggle.classList.toggle('open');
+            }
           }
+        });
+        
+        subitems.appendChild(subitem);
+        
+        // 서브서브폴더들
+        if (hasSubSubfolders) {
+          const subsubitems = document.createElement('div');
+          subsubitems.className = 'nav-subitems';
+          
+          subSubfolders.forEach((subsubfolder, subsubIndex) => {
+            const subsubfolderName = subsubfolder[0];
+            const subsubEmoji = emojiMap[(index + subIndex + subsubIndex + 2) % emojiMap.length];
+            
+            const subsubitem = document.createElement('div');
+            subsubitem.className = 'nav-subitem';
+            subsubitem.style.marginLeft = '16px';
+            
+            subsubitem.innerHTML = `
+              <div class="nav-item-left">
+                <span class="nav-emoji">${subsubEmoji}</span>
+                <span class="nav-name">${subsubfolderName}</span>
+                <span class="nav-count">${subsubfolder[1]} Items</span>
+              </div>
+            `;
+            
+            subsubitem.addEventListener('click', (e) => {
+              e.stopPropagation();
+              selectFolder([folderName, subfolderName, subsubfolderName]);
+            });
+            
+            subsubitems.appendChild(subsubitem);
+          });
+          
+          subitems.appendChild(subsubitems);
         }
       });
-
-      subfolderItem.appendChild(subBtn);
-
-      if (subHasSubfolders) {
-        const subSublist = document.createElement('div');
-        subSublist.className = 'subfolder-list';
-
-        subSubfolders.forEach(subsubfolder => {
-          const subsubfolderItem = document.createElement('div');
-          subsubfolderItem.className = 'folder-item';
-
-          const subsubCurrentPath = [...subCurrentPath, subsubfolder];
-
-          const subsubBtn = document.createElement('button');
-          subsubBtn.className = 'folder-btn';
-          subsubBtn.setAttribute('data-depth', depth + 2);
-
-          const subsubEmoji = document.createElement('span');
-          subsubEmoji.className = 'folder-emoji';
-          subsubEmoji.textContent = getEmoji(subsubfolder, depth + 2);
-
-          subsubBtn.appendChild(document.createElement('span')).textContent = '';
-          subsubBtn.appendChild(subsubEmoji);
-          subsubBtn.appendChild(document.createTextNode(' ' + subsubfolder));
-
-          subsubBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            selectFolder(subsubCurrentPath);
-          });
-
-          subsubfolderItem.appendChild(subsubBtn);
-          subSublist.appendChild(subsubfolderItem);
-        });
-
-        subfolderItem.appendChild(subSublist);
-      }
-
-      sublist.appendChild(subfolderItem);
-    });
-
-    folderItem.appendChild(sublist);
-  }
-
-  folderTree_el.appendChild(folderItem);
+      
+      navigation.appendChild(subitems);
+    }
+  });
 }
 
 // ============================================
@@ -323,24 +298,40 @@ function renderFolderItem(folderName, depth, parentPath) {
 
 function selectFolder(path) {
   currentPath = path;
-
+  
   // 활성화 상태 업데이트
-  document.querySelectorAll('.folder-btn').forEach(btn => {
-    btn.classList.remove('active');
+  document.querySelectorAll('.nav-item, .nav-subitem').forEach(item => {
+    item.classList.remove('active');
   });
-
-  // 현재 경로의 버튼을 활성화
-  const buttons = document.querySelectorAll('.folder-btn');
-  buttons.forEach(btn => {
-    const btnText = btn.textContent.trim();
-    const btnPath = [];
-    
-    // 간단한 경로 추출 (개선 가능)
-    if (path.length > 0 && btnText.includes(path[path.length - 1])) {
-      btn.classList.add('active');
+  
+  // 현재 경로의 마지막 폴더를 활성화
+  const lastFolder = path[path.length - 1];
+  const navItems = document.querySelectorAll('.nav-item, .nav-subitem');
+  
+  navItems.forEach(item => {
+    const nameEl = item.querySelector('.nav-name');
+    if (nameEl && nameEl.textContent === lastFolder) {
+      // 부모도 활성화하기 위해 체크
+      let isCorrectPath = true;
+      if (path.length > 1) {
+        // 부모의 이름도 확인
+        const parentEl = item.parentElement;
+        if (parentEl) {
+          const parentItem = parentEl.previousElementSibling;
+          if (parentItem) {
+            const parentName = parentItem.querySelector('.nav-name');
+            if (parentName && parentName.textContent !== path[path.length - 2]) {
+              isCorrectPath = false;
+            }
+          }
+        }
+      }
+      if (isCorrectPath) {
+        item.classList.add('active');
+      }
     }
   });
-
+  
   renderGallery();
 }
 
@@ -350,33 +341,33 @@ function selectFolder(path) {
 
 function renderGallery() {
   gallery.innerHTML = '';
-
+  
   if (currentPath.length === 0) {
     galleryHeader.innerHTML = '<div class="gallery-header-title">📁 폴더를 선택하세요</div>';
-    gallery.innerHTML = '<div class="empty-state">좌측 폴더를 클릭해주세요 🍋</div>';
+    gallery.innerHTML = '<div class="empty-state">위의 폴더를 클릭해주세요 🍋</div>';
     return;
   }
-
-  const folderPath = currentPath.join('|');
-  const items = folderTree[folderPath] || [];
-
+  
+  const path = currentPath.join('|');
+  const items = folderTree[path] || [];
+  
+  const emoji = '🥧';
   const title = currentPath[currentPath.length - 1];
-  const emoji = getEmoji(title, currentPath.length - 1);
   galleryHeader.innerHTML = `<div class="gallery-header-title">${emoji} ${title}</div>`;
-
+  
   if (items.length === 0) {
     gallery.innerHTML = '<div class="empty-state">이 폴더는 비어있습니다 🥧</div>';
     return;
   }
-
+  
   items.forEach(item => {
     const card = document.createElement('div');
     card.className = 'card';
-
+    
     const tagsHtml = item.tags
       .map(tag => `<span class="card-tag">${tag}</span>`)
       .join('');
-
+    
     card.innerHTML = `
       <img class="card-thumb" src="${item.img}" loading="lazy" alt="${item.name}">
       <div class="card-body">
@@ -384,11 +375,11 @@ function renderGallery() {
         <div class="card-title">${item.name}</div>
       </div>
     `;
-
+    
     card.addEventListener('click', () => {
       openLightbox(item.img, item.name);
     });
-
+    
     gallery.appendChild(card);
   });
 }

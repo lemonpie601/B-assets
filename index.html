@@ -358,39 +358,50 @@
     /* ====================================================
        2. 커스텀 이모지 스크롤바
     ==================================================== */
+    /* ====================================================
+       2. 커스텀 이모지 스크롤바
+    ==================================================== */
     var thumb = document.getElementById('scrollbarThumb');
-    var isDragging = false;
-    var dragStartY = 0;
-
-    function updateScrollbar() {
-      var scrollPercentage = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-      var thumbPosition = (window.innerHeight - 60) * (scrollPercentage / 100);
-      thumb.style.top = thumbPosition + 'px';
-      thumb.textContent = scrollPercentage > 50 ? '🥧' : '🍋';
+    
+    // 모바일인지 확인 (간단하게 화면 너비로 체크)
+    if (window.innerWidth >= 1024) {
+        var isDragging = false;
+        var dragStartY = 0;
+    
+        function updateScrollbar() {
+            var scrollPercentage = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            var trackHeight = window.innerHeight - 60;
+            var thumbPosition = trackHeight * (scrollPercentage / 100);
+            
+            thumb.style.top = thumbPosition + 'px';
+            thumb.textContent = scrollPercentage > 50 ? '🥧' : '🍋';
+        }
+    
+        window.addEventListener('scroll', updateScrollbar);
+    
+        thumb.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            dragStartY = e.clientY - thumb.getBoundingClientRect().top;
+            e.preventDefault();
+        });
+    
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            var trackHeight = window.innerHeight - 60;
+            var newTop = e.clientY - dragStartY;
+            newTop = Math.max(0, Math.min(newTop, trackHeight));
+            var scrollPercentage = (newTop / trackHeight) * 100;
+            var scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            window.scrollTo(0, (scrollPercentage / 100) * scrollHeight);
+        });
+    
+        document.addEventListener('mouseup', function() {
+            isDragging = false;
+        });
+    } else {
+        // 모바일일 경우 요소 삭제 또는 숨김 처리 확정
+        if(thumb) thumb.style.display = 'none';
     }
-
-    window.addEventListener('scroll', updateScrollbar);
-
-    thumb.addEventListener('mousedown', function(e) {
-      isDragging = true;
-      dragStartY = e.clientY - thumb.getBoundingClientRect().top;
-      e.preventDefault();
-    });
-
-    document.addEventListener('mousemove', function(e) {
-      if (!isDragging) return;
-      var trackHeight = window.innerHeight - 60;
-      var newTop = e.clientY - dragStartY;
-      newTop = Math.max(0, Math.min(newTop, trackHeight));
-      var scrollPercentage = (newTop / trackHeight) * 100;
-      var scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-      window.scrollTo(0, (scrollPercentage / 100) * scrollHeight);
-    });
-
-    document.addEventListener('mouseup', function() {
-      isDragging = false;
-    });
-
     /* ====================================================
        3. 라이트박스 (이미지 크게 보기)
     ==================================================== */

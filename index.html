@@ -120,6 +120,12 @@
     .card-body {
       padding: 16px 18px 18px;
     }
+    .card-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
     .card-tag {
       display: inline-block;
       background: #fdf5ec;
@@ -128,7 +134,6 @@
       font-weight: 700;
       padding: 3px 10px;
       border-radius: 999px;
-      margin-bottom: 8px;
       border: 1px solid #e8d9c8;
     }
     .card-title {
@@ -436,7 +441,9 @@
       var container = document.getElementById('tabs');
       var cats = ['전체'];
       items.forEach(function(i) {
-        if (cats.indexOf(i.tab) === -1) cats.push(i.tab);
+        i.tags.forEach(function(tag) {
+          if (cats.indexOf(tag) === -1) cats.push(tag);
+        });
       });
       container.innerHTML = '';
       cats.forEach(function(cat) {
@@ -455,7 +462,9 @@
     function showCategory(category) {
       var grid = document.getElementById('gallery');
       grid.innerHTML = '';
-      var filtered = category === '전체' ? items : items.filter(function(i) { return i.tab === category; });
+      var filtered = category === '전체' ? items : items.filter(function(i) {
+        return i.tags.indexOf(category) !== -1;
+      });
 
       if (filtered.length === 0) {
         grid.innerHTML = '<div class="empty-state">아직 등록된 에셋이 없어요 🍋</div>';
@@ -465,10 +474,16 @@
       filtered.forEach(function(item) {
         var card = document.createElement('div');
         card.className = 'card';
+
+        // 태그들을 HTML로 변환
+        var tagsHTML = item.tags.map(function(tag) {
+          return '<span class="card-tag">' + tag + '</span>';
+        }).join('');
+
         card.innerHTML =
           '<img class="card-thumb" src="' + item.img + '" loading="lazy" alt="' + item.name + '">' +
           '<div class="card-body">' +
-          '<span class="card-tag">' + item.tab + '</span>' +
+          '<div class="card-tags">' + tagsHTML + '</div>' +
           '<div class="card-title">' + item.name + '</div>' +
           '</div>';
         card.addEventListener('click', function() {

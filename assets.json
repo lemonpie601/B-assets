@@ -14,7 +14,7 @@
     }
   ],
   "items": [
-    { "category": "char", "url": "images/bcut_01.png", "title": "레몬아이" },
+    { "category": "char", "url": "https://cdn.caveduck.io/cdn-cgi/image/anim=true,dpr=1.5,f=auto,w=500/charim-standard/de823c21-756c-4edc-bbf8-0683626536da?v=de819a", "title": "레몬아이" },
     { "category": "background", "url": "images/bg_01.png", "title": "숲속 오두막" },
     { "category": "char", "url": "images/bcut_02.png", "title": "부드러운 곰" }
   ]

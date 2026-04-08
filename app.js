@@ -79,8 +79,8 @@ const scrollbarThumb = document.getElementById('scrollbarThumb');
 
 async function loadData() {
   try {
-    const response = await fetch('./assets.json');
-    const data = await response.json();
+   const response = await fetch('https://raw.githubusercontent.com/lemonpie601/B-assets/main/assets.json');
+   const data = await response.json();
     
     allItems = data.map((item, index) => ({
       ...item,

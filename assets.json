@@ -1,22 +1,32 @@
 [
   {
-    "tags": ["캐릭터"],
-    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/12.webp",
-    "name": "레몬파이"
+    "tags": ["목장"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/토끼B1.png",
+    "name": "토끼"
   },
   {
-    "tags": ["배경"],
-    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/3.png",
-    "name": "이거 뭔데라"
+    "tags": ["목장"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/토끼B2.png",
+    "name": "토끼"
+  },
+    {
+    "tags": ["목장"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/토끼B3.png",
+    "name": "토끼"
   },
   {
-    "tags": ["B컷"],
-    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/4.png",
-    "name": "하아롱"
-  },
+    "tags": ["목장"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/토끼B4.png",
+    "name": "토끼"
+  },  
   {
-    "tags": ["B컷", "테스트"],
-    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/단5.png",
-    "name": "우와와"
+    "tags": ["목장"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/소B1.png",
+    "name": "소"
+  },  
+  {
+    "tags": ["목장"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/소B2.png",
+    "name": "소"
   }
 ]

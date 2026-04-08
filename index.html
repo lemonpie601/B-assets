@@ -120,45 +120,22 @@
     .card-body {
       padding: 16px 18px 18px;
     }
-
-    /* ── 태그 트리 구조 ── */
-    .card-tags-tree {
+    .card-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
       margin-bottom: 8px;
-      font-size: 12px;
-      line-height: 1.6;
-      font-family: 'Courier New', monospace;
+    }
+    .card-tag {
+      display: inline-block;
+      background: #fdf5ec;
       color: #8b5e3c;
+      font-size: 11px;
       font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid #e8d9c8;
     }
-
-    .tag-root {
-      margin-left: 0;
-    }
-
-    .tag-item {
-      padding-left: 16px;
-      position: relative;
-    }
-
-    .tag-item::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      width: 10px;
-      height: 1px;
-      background: #8b5e3c;
-      transform: translateY(-50%);
-    }
-
-    .tag-item::after {
-      content: '├ ';
-      position: absolute;
-      left: 0;
-      color: #8b5e3c;
-      font-weight: bold;
-    }
-
     .card-title {
       font-size: 15px;
       font-weight: 700;
@@ -236,7 +213,6 @@
       .main-wrap { margin: 20px auto; padding: 0 14px; }
       .card-body { padding: 12px 14px 14px; }
       .card-title { font-size: 13px; }
-      .card-tags-tree { font-size: 11px; }
     }
 
     /* ── 차단 오버레이 ── */
@@ -513,21 +489,15 @@
         var card = document.createElement('div');
         card.className = 'card';
 
-        // 태그 트리 구조 HTML 생성
-        var tagsHTML = '<div class="card-tags-tree">';
-        item.tags.forEach(function(tag, index) {
-          if (index === 0) {
-            tagsHTML += '<div class="tag-root">' + tag + '</div>';
-          } else {
-            tagsHTML += '<div class="tag-item">' + tag + '</div>';
-          }
-        });
-        tagsHTML += '</div>';
+        // 태그들을 HTML로 변환
+        var tagsHTML = item.tags.map(function(tag) {
+          return '<span class="card-tag">' + tag + '</span>';
+        }).join('');
 
         card.innerHTML =
           '<img class="card-thumb" src="' + item.img + '" loading="lazy" alt="' + item.name + '">' +
           '<div class="card-body">' +
-          tagsHTML +
+          '<div class="card-tags">' + tagsHTML + '</div>' +
           '<div class="card-title">' + item.name + '</div>' +
           '</div>';
         card.addEventListener('click', function() {

@@ -1,17 +1,22 @@
 [
   {
     "tab": "캐릭터",
-    "img": "https://cdn.caveduck.io/cdn-cgi/image/anim=true,f=auto,w=500/charim-standard/c350d188-0a04-4638-880a-3ddfac7e386b?v=ca5260",
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/12.webp",
     "name": "레몬파이"
   },
   {
     "tab": "배경",
-    "img": "https://cdn.caveduck.io/cdn-cgi/image/anim=true,f=auto,w=500/charim-standard/19b95abf-6e24-4dac-aeba-922b456f84cb?v=4ae2ca",
-    "name": "이거 뭐더라"
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/3.png",
+    "name": "이거 뭔데라"
   },
   {
     "tab": "B컷",
-    "img": "https://cdn.caveduck.io/cdn-cgi/image/anim=true,dpr=1.5,f=auto,w=500/charim-standard/ceb0805d-88d9-43fd-a377-456ad408f54a?v=36a48b",
-    "name": "하아룽"
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/4.png",
+    "name": "하아롱"
+  },
+  {
+    "tab": "B컷",
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/5.png",
+    "name": "우와와"
   }
 ]

@@ -427,7 +427,21 @@
       fetch(JSON_URL)
         .then(function(r) { return r.json(); })
         .then(function(data) {
-          items = data;
+          // old format (tab) 또는 new format (tags) 모두 지원
+          items = data.map(function(item) {
+            if (item.tags) {
+              // new format: tags는 배열
+              return item;
+            } else if (item.tab) {
+              // old format: tab을 tags 배열로 변환
+              return {
+                tags: [item.tab],
+                img: item.img,
+                name: item.name
+              };
+            }
+            return item;
+          });
           renderTabs();
           showCategory('전체');
         })

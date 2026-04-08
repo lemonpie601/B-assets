@@ -22,16 +22,19 @@
     </div>
   </header>
 
-  <!-- 필터 영역 -->
-  <section class="filter-section">
-    <div class="filter-inner" id="filters">
-      <div class="loading">필터를 불러오는 중...</div>
-    </div>
-  </section>
-
   <!-- 메인 콘텐츠 -->
-  <main class="main-wrap">
-    <div class="portfolio-grid" id="gallery"></div>
+  <main class="main-container">
+    <!-- 좌측 네비게이션 -->
+    <nav class="sidebar">
+      <div class="sidebar-title">📁 폴더</div>
+      <div class="folder-tree" id="folderTree"></div>
+    </nav>
+
+    <!-- 우측 갤러리 -->
+    <section class="content">
+      <div class="gallery-header" id="galleryHeader"></div>
+      <div class="gallery-grid" id="gallery"></div>
+    </section>
   </main>
 
   <!-- 라이트박스 -->

@@ -1,21 +1,17 @@
-{
-  "categories": [
-    {
-      "id": "all",
-      "name": "전체보기"
-    },
-    {
-      "id": "char",
-      "name": "캐릭터"
-    },
-    {
-      "id": "background",
-      "name": "배경"
-    }
-  ],
-  "items": [
-    { "category": "char", "url": "B-assets/images/1.png", "title": "레몬아이" },
-    { "category": "background", "url": "images/bg_01.png", "title": "숲속 오두막" },
-    { "category": "char", "url": "images/bcut_02.png", "title": "부드러운 곰" }
-  ]
-}
+[
+  {
+    "tab": "캐릭터",
+    "img": "이미지_주소_복사",
+    "name": "에셋 이름"
+  },
+  {
+    "tab": "배경",
+    "img": "이미지_주소_복사",
+    "name": "에셋 이름"
+  },
+  {
+    "tab": "캐릭터",
+    "img": "이미지_주소_복사",
+    "name": "에셋 이름"
+  }
+]

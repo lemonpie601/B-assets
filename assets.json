@@ -26,6 +26,11 @@
   },  
   {
     "tags": ["목장"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/닭B1.png",
+    "name": "닭"
+  },
+  {
+    "tags": ["목장"],
     "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/토끼B1.png",
     "name": "토끼"
   },

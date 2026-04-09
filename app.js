@@ -89,7 +89,7 @@ async function loadData() {
     }));
 
     buildFolderTree();
-    renderNavigation();
+    renderHomeScreen();
   } catch (error) {
     console.error('데이터 로드 실패:', error);
     gallery.innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다 😢</div>';

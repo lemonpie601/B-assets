@@ -58,5 +58,40 @@
     "tags": ["목장", "소"],
     "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/소B2.png",
     "name": "소"
+  },
+  {
+    "tags": ["목장"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/배경B1.png",
+    "name": "목장"
+  },  
+  {
+    "tags": ["목장"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/배경B2.png",
+    "name": "목장"
+  },  
+  {
+    "tags": ["목장"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/배경B3.png",
+    "name": "목장"
+  },  
+  {
+    "tags": ["목장"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/배경B4.png",
+    "name": "목장"
+  },  
+  {
+    "tags": ["목장", "말"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/말B1.png",
+    "name": "말"
+  },  
+  {
+    "tags": ["목장", "말"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/말B2.png",
+    "name": "말"
+  },  
+  {
+    "tags": ["목장", "토끼"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/토끼B5.png",
+    "name": "토끼"
   }
 ]

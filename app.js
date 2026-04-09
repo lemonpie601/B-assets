@@ -61,7 +61,7 @@
 let allItems = [];
 let folderTree = {};
 let currentPath = [];
-const emojiMap = ['🥧', '🍋', '🔥', '🍯', '🎂', '🧁', '🍪', '🥐', '🍩'];
+const emojiMap = ['🍎', '🍑', '🍊', '🍯', '🎂', '🧁', '🍪', '🥐', '🍩', '🫓', '🥖', '🧇', '🥞'];
 
 // DOM
 const navigation = document.getElementById('navigation');

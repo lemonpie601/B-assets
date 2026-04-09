@@ -79,7 +79,7 @@ const scrollbarThumb = document.getElementById('scrollbarThumb');
 
 async function loadData() {
   try {
-    const response = await fetch('https://cdn.jsdelivr.net/gh/lemonpie601/B-assets@main/assets.json');
+    const response = await fetch('https://ghproxy.com/https://raw.githubusercontent.com/lemonpie601/B-assets/main/assets.json');
     const data = await response.json();
     
     allItems = data.map((item, index) => ({

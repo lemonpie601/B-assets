@@ -79,41 +79,8 @@ const scrollbarThumb = document.getElementById('scrollbarThumb');
 
 async function loadData() {
   try {
-    // 여러 방법 시도
-    let response;
-    let data;
-    
-    try {
-      // 방법 1: 로컬 경로
-      response = await fetch('./assets.json');
-      if (response.ok) {
-        data = await response.json();
-      } else {
-        throw new Error('Local path failed');
-      }
-    } catch (e1) {
-      try {
-        // 방법 2: jsDelivr
-        response = await fetch('https://cdn.jsdelivr.net/gh/lemonpie601/B-assets/assets.json');
-        if (response.ok) {
-          data = await response.json();
-        } else {
-          throw new Error('jsDelivr failed');
-        }
-      } catch (e2) {
-        try {
-          // 방법 3: ghproxy
-          response = await fetch('https://ghproxy.com/https://raw.githubusercontent.com/lemonpie601/B-assets/main/assets.json');
-          if (response.ok) {
-            data = await response.json();
-          } else {
-            throw new Error('ghproxy failed');
-          }
-        } catch (e3) {
-          throw new Error('모든 방법 실패');
-        }
-      }
-    }
+    const response = await fetch('https://raw.githubusercontent.com/lemonpie601/B-assets/main/assets.json');
+    const data = await response.json();
     
     allItems = data.map((item, index) => ({
       ...item,
@@ -125,7 +92,7 @@ async function loadData() {
     renderNavigation();
   } catch (error) {
     console.error('데이터 로드 실패:', error);
-    gallery.innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다 😢<br><br>Error: ' + error.message + '</div>';
+    gallery.innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다 😢</div>';
   }
 }
 

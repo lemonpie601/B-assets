@@ -79,8 +79,41 @@ const scrollbarThumb = document.getElementById('scrollbarThumb');
 
 async function loadData() {
   try {
-    const response = await fetch('https://ghproxy.com/https://raw.githubusercontent.com/lemonpie601/B-assets/main/assets.json');
-    const data = await response.json();
+    // 여러 방법 시도
+    let response;
+    let data;
+    
+    try {
+      // 방법 1: 로컬 경로
+      response = await fetch('./assets.json');
+      if (response.ok) {
+        data = await response.json();
+      } else {
+        throw new Error('Local path failed');
+      }
+    } catch (e1) {
+      try {
+        // 방법 2: jsDelivr
+        response = await fetch('https://cdn.jsdelivr.net/gh/lemonpie601/B-assets/assets.json');
+        if (response.ok) {
+          data = await response.json();
+        } else {
+          throw new Error('jsDelivr failed');
+        }
+      } catch (e2) {
+        try {
+          // 방법 3: ghproxy
+          response = await fetch('https://ghproxy.com/https://raw.githubusercontent.com/lemonpie601/B-assets/main/assets.json');
+          if (response.ok) {
+            data = await response.json();
+          } else {
+            throw new Error('ghproxy failed');
+          }
+        } catch (e3) {
+          throw new Error('모든 방법 실패');
+        }
+      }
+    }
     
     allItems = data.map((item, index) => ({
       ...item,
@@ -92,7 +125,7 @@ async function loadData() {
     renderNavigation();
   } catch (error) {
     console.error('데이터 로드 실패:', error);
-    gallery.innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다 😢</div>';
+    gallery.innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다 😢<br><br>Error: ' + error.message + '</div>';
   }
 }
 
@@ -125,7 +158,6 @@ function getFirstLevelFolders() {
     if (item.tags && item.tags.length > 0) {
       const firstFolder = item.tags[0];
       if (!folders.has(firstFolder)) {
-        // 이 폴더의 최대 깊이 확인
         const maxDepth = Math.max(
           ...allItems
             .filter(i => i.tags && i.tags[0] === firstFolder)
@@ -193,13 +225,7 @@ function renderHomeScreen() {
     `;
     
     folderCard.addEventListener('click', () => {
-      if (folderInfo.hasSubfolders) {
-        // 서브폴더가 있으면 서브폴더 리스트로
-        selectFolder([folderName]);
-      } else {
-        // 서브폴더가 없으면 바로 이미지 표시
-        selectFolder([folderName]);
-      }
+      selectFolder([folderName]);
     });
     
     navigation.appendChild(folderCard);
@@ -214,7 +240,6 @@ function renderContent() {
   navigation.innerHTML = '';
   
   const parentPath = currentPath.slice(0, -1);
-  const currentLevel = currentPath.length;
   
   // 뒤로가기 버튼
   const backBtn = document.createElement('div');
@@ -238,7 +263,6 @@ function renderContent() {
   const subfolders = getSubfolders(currentPath);
   
   if (subfolders.length > 0) {
-    // 서브폴더가 있으면 리스트로 표시
     subfolders.forEach((subfolder, index) => {
       const emoji = emojiMap[(index + 1) % emojiMap.length];
       
@@ -295,7 +319,6 @@ function renderGallery() {
   const items = folderTree[path] || [];
   
   if (items.length === 0) {
-    // 이미지가 없으면 서브폴더 확인
     const subfolders = getSubfolders(currentPath);
     if (subfolders.length === 0) {
       const emoji = '🥧';

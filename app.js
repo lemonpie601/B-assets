@@ -214,7 +214,6 @@ function renderContent() {
   backBtn.innerHTML = `
     <div class="nav-item-left">
       <span class="nav-emoji">◀</span>
-      <span class="nav-name">뒤로가기</span>
     </div>
   `;
   backBtn.addEventListener('click', () => {
@@ -241,7 +240,6 @@ function renderContent() {
           <span class="nav-emoji">${emoji}</span>
           <span class="nav-name">${subfolder}</span>
         </div>
-        <div class="nav-toggle">▶</div>
       `;
       
       navItem.addEventListener('click', () => {

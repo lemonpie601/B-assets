@@ -100,6 +100,16 @@
     "name": "관리인"
   },
   {
+    "tags": ["목장", "관리인"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/관리인B5.png",
+    "name": "관리인"
+  },
+  {
+    "tags": ["목장", "관리인"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/관리인B6.png",
+    "name": "관리인"
+  },
+  {
     "tags": ["목장", "말"],
     "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/말B1.png",
     "name": "말"

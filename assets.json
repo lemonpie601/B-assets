@@ -1,5 +1,15 @@
 [
   {
+    "tags": ["로웰"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/아니마B1.png",
+    "name": "아니마"
+  },
+  {
+    "tags": ["로웰"],
+    "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/아니마B2.png",
+    "name": "아니마"
+  },
+  {
     "tags": ["드래곤"],
     "img": "https://raw.githubusercontent.com/lemonpie601/B-assets/main/images/아르B1.png",
     "name": "아르"
